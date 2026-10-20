@@ -1,0 +1,13 @@
+{{- if .Values.cluster.monitoring.enabled -}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: "{{ include "svc-postgres.clusterName" . }}-podmon"
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: {{ include "svc-postgres.clusterName" . }}
+  podMetricsEndpoints:
+    - port: metrics
+{{- end -}}

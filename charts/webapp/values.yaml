@@ -1,0 +1,112 @@
+ #
+ # Global values, known by root chart and all subcharts
+ #
+global:
+  domain: "example.com"
+  ingressClassName: "nginx"
+
+#
+# Dependency Webcomponents
+#
+back:
+  service:
+    port: 5001
+  ingress:
+    enabled: true
+    auto: true
+  env:
+    config:
+      createConfigMap: false
+      existingConfigMap: ""
+      values: {}
+    secret:
+      createSecret: false
+      existingSecret: ""
+      values: {}
+
+
+front:
+  enabled: false
+  ingress:
+    enabled: true
+    auto: true
+  env:
+    config:
+      createConfigMap: false
+      existingConfigMap: ""
+      values: {}
+    secret:
+      createSecret: false
+      existingSecret: ""
+      values: {}
+
+webapp:
+  ciliumNetworkPolicy:
+    enabled: false
+    annotations: {}
+
+postgres:
+  enabled: false
+  cluster:
+    createSecret: false
+  ingress:
+    enabled: true
+    auto: true
+  version: "16"
+  database:
+    name: database
+    owner: database-owner
+    # Ideally, you want to create a secret elsewhere and set cluster.createSecret to false
+    password: CHANGEME123!
+    # Name of the secret, used to share data to other charts, mandatory.
+    # If secret is set elsewhere, put its name here and set cluster.createSecret to false
+    secret: postgres-initdb
+    port: 5432
+  admin:
+    email: pgadmin-user@mail.example.com
+    password: CHANGEMET00!
+    port: 80
+  env:
+    config:
+      createConfigMap: false
+      existingConfigMap: ""
+      values: {}
+    secret:
+      createSecret: false
+      existingSecret: ""
+      values: {}
+
+mongodb:
+  enabled: false
+  mongoExpress:
+    username: mongo-express-user
+    password: CHANGEM3PLE4SE!!
+    env:
+      config:
+        createConfigMap: true
+        values: {}
+      secret:
+        createSecret: true
+        values: {}
+  monit:
+    enabled: true
+    createSecret: true
+    promUsername: promUsername
+    promPassword: promPassword
+  cluster:
+    database:
+      user: db-user
+      password: CHANGEME123!
+      createSecret: true
+    init:
+      createConfigmap: true
+      env:
+        config:
+          createConfigMap: true
+          values: {}
+        secret:
+          createSecret: true
+          values: {}
+    version: 7.0.25
+    featureCompatibilityVersion: "7.0"
+    additionalMongodConfig: {}

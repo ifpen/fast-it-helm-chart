@@ -1,0 +1,6 @@
+apiVersion: v2
+name: webcomponent
+description: Fast-IT Helm Chart for WebComponents, used in WebApps and WebServices
+type: application
+version: 0.1.0
+appVersion: "1.16.0"

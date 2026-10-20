@@ -1,0 +1,44 @@
+{{- if .Values.cluster.init.createConfigmap -}}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "svc-mongodb.initScriptConfigmap" . }}
+data:
+  init.js: >
+    var dbName = process.env.MONGODB_DATABASE || process.env.DEFAULT_DB ||
+    process.env.DATABASE_NAME;
+
+    if (!dbName) {
+      throw new Error("No database name provided");
+    }
+
+
+    var collectionName = process.env.MONGODB_COLLECTION ||
+    process.env.DEFAULT_COLLECTION || "__init__";
+
+    var targetDb = db.getSiblingDB(dbName);
+
+
+    targetDb.getCollection(collectionName).updateOne(
+      { _id: "__init__" },
+      { $setOnInsert: { initializedAt: new Date() } },
+      { upsert: true }
+    );
+
+
+    var u = process.env.MONGO_INITDB_ROOT_USERNAME;
+
+    var p = process.env.MONGO_INITDB_ROOT_PASSWORD;
+
+
+    if (u && p) {
+      if (!targetDb.getUser(u)) {
+        targetDb.createUser({
+          user: u,
+          pwd: p,
+          roles: [{ role: "readWrite", db: dbName }]
+        });
+      }
+    }
+{{- end -}}

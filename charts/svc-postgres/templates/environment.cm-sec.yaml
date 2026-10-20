@@ -1,0 +1,30 @@
+{{- if and (empty .Values.env.config.existingConfigMap) .Values.env.config.createConfigMap -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "svc-postgres.configmapName" . }}
+  labels:
+    {{- include "svc-postgres.labels" . | nindent 4 }}
+data:
+  PGADMIN_DEFAULT_EMAIL: {{ required "admin.email is required when env.config.createConfigMap=true" .Values.admin.email | quote }}
+  {{- range $key, $value := .Values.env.config.values }}
+  {{ $key }}: {{ $value | toString | quote }}
+  {{- end }}
+{{ end }}
+
+{{ if and (empty .Values.env.secret.existingSecret)  .Values.env.secret.createSecret }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "svc-postgres.secretName" . }}
+  labels:
+    {{- include "svc-postgres.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  PGADMIN_DEFAULT_PASSWORD: {{ required "admin.password is required when env.secret.createSecret=true" .Values.admin.password | quote }}
+  {{- range $key, $value := .Values.env.secret.values }}
+  {{ $key }}: {{ $value | toString | quote }}
+  {{- end }}
+{{ end }}

@@ -1,0 +1,26 @@
+{{- if .Values.webapp.ciliumNetworkPolicy.enabled -}}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "webcomponent.fullname" . }}-allow-all-in-own-ns
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "webcomponent.labels" . | nindent 4 }}
+  {{- with .Values.webapp.ciliumNetworkPolicy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  # 2. Autoriser l'ingress uniquement depuis CE même namespace
+  ingress:
+    - fromEndpoints:
+      - matchLabels:
+        io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+
+  # 3. Autoriser l'egress uniquement vers CE même namespace
+  egress:
+    - toEndpoints:
+      - matchLabels:
+        io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+{{- end -}}

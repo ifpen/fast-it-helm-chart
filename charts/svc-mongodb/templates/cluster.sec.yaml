@@ -1,0 +1,10 @@
+{{- if .Values.cluster.database.createSecret -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ include "svc-mongodb.clusterSecretName" . }}"
+type: Opaque
+stringData:
+  password: {{ .Values.cluster.database.password | quote }}
+{{- end -}}

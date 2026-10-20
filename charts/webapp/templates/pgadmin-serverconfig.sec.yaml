@@ -1,0 +1,24 @@
+{{- if .Values.postgres.enabled -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "svc-postgres.pgadminServerConfigSecret" .Subcharts.postgres | quote }}
+type: Opaque
+stringData:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+          "Name": "PostgreSQL Database",
+          "Group": "Servers",
+          "Host": "{{ include "svc-postgres.clusterName" .Subcharts.postgres }}-rw.{{ .Release.Namespace }}.svc.cluster.local",
+          "Port": {{ required "postgres.database.port is required when postgres.enabled=true" .Values.postgres.database.port }},
+          "MaintenanceDB": {{ required "postgres.database.name is required when postgres.enabled=true" .Values.postgres.database.name | quote }},
+          "Username": {{ required "postgres.database.owner is required when postgres.enabled=true" .Values.postgres.database.owner | quote }},
+          "SSLMode": "prefer",
+          "SavePassword": true
+        }
+      }
+    }
+{{- end -}}

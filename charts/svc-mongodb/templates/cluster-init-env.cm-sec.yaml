@@ -1,0 +1,34 @@
+{{- if .Values.cluster.init.env.config.createConfigMap -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "svc-mongodb.initEnvConfigmapName" . }}
+  labels:
+    {{- include "svc-mongodb.labels" . | nindent 4 }}
+data:
+  NAMESPACE: {{ .Release.Namespace | quote }}
+  DATABASE_NAME: "{{ include "svc-mongodb.clusterName" . }}"
+  MONGODB_DATABASE: "{{ include "svc-mongodb.clusterName" . }}"
+  MONGODB_COLLECTION: __init__
+  MONGO_INITDB_ROOT_USERNAME: {{ .Values.cluster.database.user | quote }}
+  MONGODB_USERNAME: {{ .Values.cluster.database.user | quote }}
+  {{- range $key, $value := .Values.cluster.init.env.config.values }}
+  {{ $key }}: {{ $value | toString | quote }}
+  {{- end }}
+{{ end }}
+
+{{- if .Values.cluster.init.env.secret.createSecret -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "svc-mongodb.initEnvSecretName" . }}
+  labels:
+    {{- include "svc-mongodb.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  {{- range $key, $value := .Values.cluster.init.env.secret.values }}
+  {{ $key }}: {{ $value | toString | quote }}
+  {{- end }}
+{{ end }}

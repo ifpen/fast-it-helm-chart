@@ -1,0 +1,28 @@
+{{ if and (empty .Values.env.config.existingConfigMap) .Values.env.config.createConfigMap }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "webcomponent.configmapName" . }}
+  labels:
+    {{- include "webcomponent.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.env.config.values }}
+  {{ $key }}: {{ $value | toString | quote }}
+  {{- end }}
+{{ end }}
+
+{{ if and (empty .Values.env.secret.existingSecret)  .Values.env.secret.createSecret }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "webcomponent.secretName" . }}
+  labels:
+    {{- include "webcomponent.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  {{- range $key, $value := .Values.env.secret.values }}
+  {{ $key }}: {{ $value | toString | quote }}
+  {{- end }}
+{{ end }}

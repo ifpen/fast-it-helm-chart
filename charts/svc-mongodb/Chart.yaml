@@ -1,0 +1,6 @@
+apiVersion: v2
+name: svc-mongodb
+description: Fast-IT Helm Chart for a MongoDB cluster alongside Mongo Express for external access
+type: application
+version: 0.1.1
+appVersion: "1"

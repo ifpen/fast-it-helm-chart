@@ -1,0 +1,36 @@
+{{- if .Values.monit.enabled -}}
+{{- if .Values.monit.createSecret -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ include "svc-mongodb.promSecretName" . }}"
+type: Opaque
+stringData:
+  username: {{ .Values.monit.promUsername }}
+  password: {{ .Values.monit.promPassword }}
+{{ end }}
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "svc-mongodb.clusterName" . }}-sm
+spec:
+  endpoints:
+    - basicAuth:
+        password:
+          key: password
+          name: "{{ include "svc-mongodb.promSecretName" . }}"
+        username:
+          key: username
+          name: "{{ include "svc-mongodb.promSecretName" . }}"
+      port: prometheus
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace | quote }}
+  selector:
+    matchLabels:
+      app: "{{ include "svc-mongodb.clusterName" . }}-svc"
+{{ end }}

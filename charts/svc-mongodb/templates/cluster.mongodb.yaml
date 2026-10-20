@@ -1,0 +1,44 @@
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: "{{ include "svc-mongodb.clusterName" . }}"
+spec:
+  members: 1
+  version: {{ .Values.cluster.version | quote }}
+  featureCompatibilityVersion: {{ .Values.cluster.featureCompatibilityVersion | quote }}
+  {{- with .Values.cluster.additionalMongodConfig }}
+  additionalMongodConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.monit.enabled }}
+  prometheus:
+    passwordSecretRef:
+      name: "{{ include "svc-mongodb.promSecretName" . }}"
+    username: {{ .Values.monit.promUsername }}
+  {{- end }}
+  security:
+    authentication:
+      ignoreUnknownUsers: true
+      modes:
+        - SCRAM
+  type: ReplicaSet
+  users:
+    - db: admin
+      name: {{ .Values.cluster.database.user | quote }}
+      passwordSecretRef:
+        name: "{{ include "svc-mongodb.clusterSecretName" . }}"
+      roles:
+        - db: admin
+          name: clusterAdmin
+        - db: admin
+          name: userAdminAnyDatabase
+        - db: admin
+          name: readWriteAnyDatabase
+        - db: admin
+          name: dbAdminAnyDatabase
+        - db: "{{ include "svc-mongodb.clusterName" . }}"
+          name: readWrite
+        - db: "{{ include "svc-mongodb.clusterName" . }}"
+          name: dbAdmin
+      scramCredentialsSecretName: "{{ include "svc-mongodb.scramSecretName" . }}"

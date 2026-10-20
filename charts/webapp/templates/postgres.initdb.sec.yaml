@@ -1,0 +1,10 @@
+{{- if and .Values.postgres.enabled (not .Values.postgres.cluster.createSecret) -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ required "postgres.database.secret is required when cluster.createSecret=true" .Values.postgres.database.secret | quote }}
+stringData:
+  username: {{ required "postgres.database.owner is required when cluster.createSecret=true" .Values.postgres.database.owner | quote }}
+  password: {{ required "postgres.database.password is required when cluster.createSecret=true" .Values.postgres.database.password | quote }}
+{{- end -}}

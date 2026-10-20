@@ -1,0 +1,78 @@
+{{- if .Release.IsInstall }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "svc-mongodb.initJob" . }}"
+spec:
+  template:
+    spec:
+      volumes:
+        - name: init-script
+          configMap:
+            name: "{{ include "svc-mongodb.initScriptConfigmap" . }}"
+            defaultMode: 420
+      containers:
+        - name: init-db
+          image: docker.io/mongo:7.0.25
+          command:
+            - /bin/bash
+            - '-c'
+            - |
+              set -euo pipefail
+
+              SERVICE_HOST="$DATABASE_NAME-svc.$NAMESPACE.svc"
+
+              while true; do
+                PRIMARY="$(mongosh --quiet --host "$SERVICE_HOST" \
+                  --username "$MONGODB_USERNAME" \
+                  --password "$MONGODB_PASSWORD" \
+                  --authenticationDatabase admin \
+                  --eval "const h=db.adminCommand({hello:1}); if (h.primary) print(h.primary)" 2>/dev/null || true)"
+                PRIMARY="$(echo "$PRIMARY" | tail -n1 | tr -d '\r')"
+                if [ -n "$PRIMARY" ]; then
+                  break
+                fi
+                sleep 5
+              done
+
+              until mongosh --quiet --host "$PRIMARY" \
+                --username "$MONGODB_USERNAME" \
+                --password "$MONGODB_PASSWORD" \
+                --authenticationDatabase admin \
+                --eval "db.adminCommand('ping')" >/dev/null 2>&1; do
+                sleep 5
+              done
+
+              mongosh --host "$PRIMARY" \
+                --username "$MONGODB_USERNAME" \
+                --password "$MONGODB_PASSWORD" \
+                --authenticationDatabase admin \
+                /init/init.js
+          envFrom:
+            - configMapRef:
+                name: {{ include "svc-mongodb.initEnvConfigmapName" . }}
+            - secretRef:
+                name: {{ include "svc-mongodb.initEnvSecretName" . }}
+                optional: true
+          env:
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ include "svc-mongodb.clusterSecretName" . }}"
+                  key: password
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ include "svc-mongodb.clusterSecretName" . }}"
+                  key: password
+          volumeMounts:
+            - name: init-script
+              readOnly: true
+              mountPath: /init
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: OnFailure
+      serviceAccountName: "{{ include "svc-mongodb.serviceAccountAppdb" . }}"
+{{- end }}

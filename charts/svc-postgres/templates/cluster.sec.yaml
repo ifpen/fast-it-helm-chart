@@ -1,0 +1,10 @@
+{{- if .Values.cluster.createSecret -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ required "database.secret is required when cluster.createSecret=true" .Values.database.secret | quote }}
+stringData:
+  username: {{ required "database.owner is required when cluster.createSecret=true" .Values.database.owner | quote }}
+  password: {{ required "database.password is required when cluster.createSecret=true" .Values.database.password | quote }}
+{{- end -}}

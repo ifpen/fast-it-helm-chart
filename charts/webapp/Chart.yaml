@@ -1,0 +1,26 @@
+apiVersion: v2
+name: webapp
+description: Fast-IT Meta Helm-Chart for WebApps
+type: application
+version: 0.1.1
+
+dependencies:
+  - name: webcomponent
+    alias: back
+    version: ">= 0.1.0-rc.0"
+    repository: https://ifpen.github.io/helm-charts
+  - name: webcomponent
+    alias: front
+    version: ">= 0.1.0-rc.0"
+    repository: https://ifpen.github.io/helm-charts
+    condition: front.enabled
+  - name: svc-postgres
+    alias: postgres
+    version: ">= 0.1.0-rc.0"
+    repository: https://ifpen.github.io/helm-charts
+    condition: postgres.enabled
+  - name: svc-mongodb
+    alias: mongodb
+    version: ">= 0.1.0-rc.0"
+    repository: https://ifpen.github.io/helm-charts
+    condition: mongodb.enabled
