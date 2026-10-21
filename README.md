@@ -3,7 +3,7 @@
 Charts Helm Fast-IT, publiés comme dépôt Helm sur GitHub Pages :
 
 ```bash
-helm repo add fastit https://ifpen.github.io/fastit-helm-chart-test
+helm repo add fastit https://ifpen.github.io/fast-it-helm-chart
 helm repo update
 helm search repo fastit/ --versions           # versions de production
 helm search repo fastit/ --versions --devel   # avec les release candidates
@@ -66,7 +66,7 @@ CI émet un avertissement et il faut incrémenter sa version.
 
 ```yaml
 source:
-  repoURL: https://ifpen.github.io/fastit-helm-chart-test
+  repoURL: https://ifpen.github.io/fast-it-helm-chart
   chart: webapp
   targetRevision: 0.1.1          # version de production
   # targetRevision: 0.2.0-rc.2   # rc précise
