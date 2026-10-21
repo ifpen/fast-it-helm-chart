@@ -1,0 +1,67 @@
+name: Release charts
+
+# Gitflow :
+#   main       -> versions de production  <chart>-X.Y.Z
+#   release/*  -> release candidates      <chart>-X.Y.Z-rc.N (pre-release)
+#   hotfix/*   -> release candidates      <chart>-X.Y.Z-rc.N (pre-release)
+# develop et feature/* ne publient rien (voir ci.yaml).
+
+on:
+  push:
+    branches:
+      - main
+      - "release/**"
+      - "hotfix/**"
+    paths:
+      - "charts/**"
+      - ".github/scripts/release-charts.sh"
+      - ".github/workflows/release.yaml"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "reindex : reconstruit index.yaml depuis toutes les releases GitHub"
+        type: choice
+        options: [reindex]
+        default: reindex
+
+permissions:
+  contents: write
+
+# Une seule publication à la fois, toutes branches confondues, pour ne pas
+# se marcher dessus sur gh-pages.
+concurrency:
+  group: helm-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.19.0
+
+      - name: Determine release mode
+        id: mode
+        run: |
+          if [[ "$EVENT" == workflow_dispatch ]]; then
+            echo "mode=reindex" >> "$GITHUB_OUTPUT"
+          elif [[ "$REF" == main ]]; then
+            echo "mode=final" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=rc" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref_name }}
+
+      - name: Release charts
+        run: .github/scripts/release-charts.sh "${{ steps.mode.outputs.mode }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - "release/**"
+      - "hotfix/**"
+  push:
+    branches:
+      - develop
+      - "feature/**"
+
+permissions:
+  contents: read
+
+jobs:
+  gitflow:
+    name: Gitflow rules
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source branch
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          case "$BASE" in
+            main)
+              [[ "$HEAD" =~ ^(release|hotfix)/ ]] \
+                || { echo "::error::main n'accepte que des PR depuis release/* ou hotfix/* (reçu : $HEAD)"; exit 1; } ;;
+            release/*|hotfix/*)
+              [[ "$HEAD" =~ ^(feature|bugfix|fix)/ ]] \
+                || { echo "::error::$BASE n'accepte que des correctifs (feature/*, bugfix/*, fix/*) (reçu : $HEAD)"; exit 1; } ;;
+          esac
+          echo "$HEAD -> $BASE : OK"
+
+  lint:
+    name: Lint & template
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.19.0
+
+      - name: Check chart versions are SemVer X.Y.Z
+        run: |
+          rc=0
+          for f in charts/*/Chart.yaml; do
+            v=$(sed -n 's/^version:[[:space:]]*//p' "$f" | head -n1 | tr -d "\"' ")
+            if [[ ! "$v" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+              echo "::error file=$f::version '$v' invalide : utiliser X.Y.Z, les -rc.N sont générés par la CI"
+              rc=1
+            fi
+          done
+          exit $rc
+
+      - name: Helm lint and template
+        run: |
+          for chart in charts/*/; do
+            echo "::group::$chart"
+            helm dependency update "$chart"
+            helm lint "$chart"
+            helm template ci "$chart" > /dev/null
+            echo "::endgroup::"
+          done
+
+  version-bump:
+    name: Version bump (PR to main)
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.19.0
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2
+
+      - name: Check changed charts have a higher version than main
+        run: ct lint --config ct.yaml --target-branch "${{ github.base_ref }}"

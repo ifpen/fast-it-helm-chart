@@ -1,0 +1,7 @@
+# Dépendances Helm reconstruites par `helm dependency update` (CI et local)
+charts/*/charts/
+charts/*/Chart.lock
+*.tgz
+
+# Worktree gh-pages utilisé par le script de release
+.gh-pages/
