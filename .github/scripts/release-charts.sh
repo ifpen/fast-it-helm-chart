@@ -61,7 +61,10 @@ prepare_pages() {
   if [[ ! -f "$PAGES_DIR/index.yaml" ]]; then
     printf 'apiVersion: v1\nentries: {}\n' > "$PAGES_DIR/index.yaml"
   fi
-  if [[ ! -f "$PAGES_DIR/index.html" ]]; then
+  # Page d'accueil versionnée dans .github/pages/ (lit index.yaml côté navigateur).
+  if [[ -f .github/pages/index.html ]]; then
+    cp .github/pages/index.html "$PAGES_DIR/index.html"
+  elif [[ ! -f "$PAGES_DIR/index.html" ]]; then
     local owner="${REPO%%/*}" name="${REPO#*/}"
     cat > "$PAGES_DIR/index.html" <<EOF
 <!doctype html>
