@@ -11,10 +11,10 @@ helm search repo fastit/ --versions --devel   # avec les release candidates
 
 | Chart          | Description                                              |
 |----------------|----------------------------------------------------------|
-| `webcomponent` | Composant web (front ou back) d'une WebApp               |
-| `svc-postgres` | Cluster CloudNativePG + pgAdmin                          |
-| `svc-mongodb`  | Cluster MongoDB + Mongo Express                          |
-| `webapp`       | Meta-chart : embarque les trois charts ci-dessus         |
+| [`webcomponent`](charts/webcomponent/README.md) | Composant web (front ou back) d'une WebApp               |
+| [`svc-postgres`](charts/svc-postgres/README.md) | Cluster CloudNativePG + pgAdmin                          |
+| [`svc-mongodb`](charts/svc-mongodb/README.md)  | Cluster MongoDB + Mongo Express                          |
+| [`webapp`](charts/webapp/README.md)       | Meta-chart : embarque les trois charts ci-dessus         |
 
 `webapp` référence les autres charts en `file://../<chart>` : ils sont
 embarqués dans son package à la publication.
