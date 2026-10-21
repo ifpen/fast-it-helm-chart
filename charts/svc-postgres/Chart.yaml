@@ -3,5 +3,5 @@ name: svc-postgres
 description: Fast-IT Helm Chart for a CNPG cluster alongside PG Admin for external access
 
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "9"
