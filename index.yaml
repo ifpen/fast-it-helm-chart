@@ -3,52 +3,52 @@ entries:
   svc-mongodb:
   - apiVersion: v2
     appVersion: "1"
-    created: "2026-10-21T17:46:38.438933728Z"
+    created: "2026-10-21T18:07:17.550161145Z"
     description: Fast-IT Helm Chart for a MongoDB cluster alongside Mongo Express
       for external access
     digest: 7b1eca8dc25bfa953fb24db2c8746688bf60ebc803583dd5213aa6bdf2e0e089
     name: svc-mongodb
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/svc-mongodb-0.1.1/svc-mongodb-0.1.1.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-mongodb-0.1.1/svc-mongodb-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: "1"
-    created: "2026-10-21T17:44:07.773567817Z"
+    created: "2026-10-21T18:07:20.745890037Z"
     description: Fast-IT Helm Chart for a MongoDB cluster alongside Mongo Express
       for external access
     digest: 6b1768c5334e19957ff2163c07bca0be81dcaa46089e19bb526beea614b1613a
     name: svc-mongodb
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/svc-mongodb-0.1.1-rc.1/svc-mongodb-0.1.1-rc.1.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-mongodb-0.1.1-rc.1/svc-mongodb-0.1.1-rc.1.tgz
     version: 0.1.1-rc.1
   svc-postgres:
   - apiVersion: v2
     appVersion: "9"
-    created: "2026-10-21T17:46:41.854557855Z"
+    created: "2026-10-21T18:07:16.665749271Z"
     description: Fast-IT Helm Chart for a CNPG cluster alongside PG Admin for external
       access
     digest: 78e3a09cfb4522dce070b21d7b1bfdeae81f2eb9b3ae403fac30b976a5e37ef7
     name: svc-postgres
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/svc-postgres-0.1.2/svc-postgres-0.1.2.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-postgres-0.1.2/svc-postgres-0.1.2.tgz
     version: 0.1.2
   - apiVersion: v2
     appVersion: "9"
-    created: "2026-10-21T17:44:11.484664603Z"
+    created: "2026-10-21T18:07:19.992898565Z"
     description: Fast-IT Helm Chart for a CNPG cluster alongside PG Admin for external
       access
     digest: b7c4a543831005626efcd75d04b079bba454fe1737cda8cf3ba99637930855db
     name: svc-postgres
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/svc-postgres-0.1.2-rc.1/svc-postgres-0.1.2-rc.1.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-postgres-0.1.2-rc.1/svc-postgres-0.1.2-rc.1.tgz
     version: 0.1.2-rc.1
   webapp:
   - apiVersion: v2
-    created: "2026-10-21T17:46:44.777016468Z"
+    created: "2026-10-21T18:07:15.85992755Z"
     dependencies:
     - alias: back
       name: webcomponent
@@ -74,10 +74,10 @@ entries:
     name: webapp
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/webapp-0.1.2/webapp-0.1.2.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webapp-0.1.2/webapp-0.1.2.tgz
     version: 0.1.2
   - apiVersion: v2
-    created: "2026-10-21T17:44:16.20739333Z"
+    created: "2026-10-21T18:07:19.191436135Z"
     dependencies:
     - alias: back
       name: webcomponent
@@ -103,27 +103,27 @@ entries:
     name: webapp
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/webapp-0.1.2-rc.1/webapp-0.1.2-rc.1.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webapp-0.1.2-rc.1/webapp-0.1.2-rc.1.tgz
     version: 0.1.2-rc.1
   webcomponent:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-10-21T17:46:47.4236876Z"
+    created: "2026-10-21T18:07:15.00483759Z"
     description: Fast-IT Helm Chart for WebComponents, used in WebApps and WebServices
     digest: 9c5f6775f7b6acf6a978964726f9f7e9b76b87acc4771d08e03994f9ad673cf2
     name: webcomponent
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/webcomponent-0.1.0/webcomponent-0.1.0.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webcomponent-0.1.0/webcomponent-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-10-21T17:44:19.825483124Z"
+    created: "2026-10-21T18:07:18.368999751Z"
     description: Fast-IT Helm Chart for WebComponents, used in WebApps and WebServices
     digest: 1617182d32a395045756954c6bcc6c5d3f4361287f4d632f7d494c716b40a54d
     name: webcomponent
     type: application
     urls:
-    - https://github.com/ifpen/fastit-helm-chart-test/releases/download/webcomponent-0.1.0-rc.1/webcomponent-0.1.0-rc.1.tgz
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webcomponent-0.1.0-rc.1/webcomponent-0.1.0-rc.1.tgz
     version: 0.1.0-rc.1
-generated: "2026-10-21T17:46:47.423038914Z"
+generated: "2026-10-21T18:07:20.74531963Z"
