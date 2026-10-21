@@ -30,6 +30,8 @@ front:
   ingress:
     enabled: true
     auto: true
+    # The front is served on <release>.<domain> (the back keeps <release>-back.<domain>)
+    autoUseReleaseName: true
   env:
     config:
       createConfigMap: false

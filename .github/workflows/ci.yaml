@@ -70,6 +70,37 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Check webapp ingress hosts
+        run: |
+          check() {
+            local out="$1"; shift
+            for expected in "$@"; do
+              grep -qF -- "$expected" "$out" || { echo "::error::attendu : $expected"; grep -E 'host:|API_URL' "$out"; exit 1; }
+            done
+          }
+
+          # Front sur <release>.<domaine>, back sur <release>-back.<domaine>
+          helm template testapp charts/webapp \
+            --set global.domain=example.org --set front.enabled=true > default.yaml
+          check default.yaml \
+            'host: "testapp.example.org"' \
+            'host: "testapp-back.example.org"' \
+            'API_URL: "testapp-back.example.org"'
+
+          # Avec un suffixe d'environnement
+          helm template testapp charts/webapp \
+            --set global.domain=example.org --set front.enabled=true \
+            --set front.ingress.autoNameSuffix=-dev --set back.ingress.autoNameSuffix=-dev > suffix.yaml
+          check suffix.yaml \
+            'host: "testapp-dev.example.org"' \
+            'host: "testapp-back-dev.example.org"' \
+            'API_URL: "testapp-back-dev.example.org"'
+
+          # Back seul : inchangé
+          helm template testapp charts/webapp --set global.domain=example.org > back-only.yaml
+          check back-only.yaml 'host: "testapp-back.example.org"'
+          echo "Hôtes conformes"
+
   version-bump:
     name: Version bump (PR to main)
     if: github.event_name == 'pull_request' && github.base_ref == 'main'
