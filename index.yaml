@@ -70,6 +70,35 @@ entries:
     version: 0.1.2-rc.1
   webapp:
   - apiVersion: v2
+    created: "2026-10-21T18:28:32.977854371Z"
+    dependencies:
+    - alias: back
+      name: webcomponent
+      repository: file://../webcomponent
+      version: '>= 0.1.0'
+    - alias: front
+      condition: front.enabled
+      name: webcomponent
+      repository: file://../webcomponent
+      version: '>= 0.1.0'
+    - alias: postgres
+      condition: postgres.enabled
+      name: svc-postgres
+      repository: file://../svc-postgres
+      version: '>= 0.1.0'
+    - alias: mongodb
+      condition: mongodb.enabled
+      name: svc-mongodb
+      repository: file://../svc-mongodb
+      version: '>= 0.1.0'
+    description: Fast-IT Meta Helm-Chart for WebApps
+    digest: 8188eac0cefe5725424ce5822aceb2e36897b7fe05e594af4d677372838b25ce
+    name: webapp
+    type: application
+    urls:
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webapp-0.1.3/webapp-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     created: "2026-10-21T18:27:29.048361735Z"
     dependencies:
     - alias: back
@@ -197,4 +226,4 @@ entries:
     urls:
     - https://github.com/ifpen/fast-it-helm-chart/releases/download/webcomponent-0.1.0-rc.1/webcomponent-0.1.0-rc.1.tgz
     version: 0.1.0-rc.1
-generated: "2026-10-21T18:27:29.04712356Z"
+generated: "2026-10-21T18:28:32.976575106Z"
