@@ -77,14 +77,25 @@ Return the automatically generated ingress host.
 
 Returns an empty string when auto ingress is not active.
 
-Example:
-  toto-back.example.com
+The host name is the component full name (<release>-<chart or alias>),
+or the release name alone when ingress.autoUseReleaseName is true,
+followed by the optional ingress.autoNameSuffix.
+
+Examples:
+  toto-back.example.com      (default)
+  toto.example.com           (autoUseReleaseName: true)
+  toto-back-dev.example.com  (autoNameSuffix: "-dev")
 */}}
 {{- define "webcomponent.autoIngressHost" -}}
 {{- if and .Values.ingress.enabled .Values.ingress.auto -}}
   {{- $tld := .Values.ingress.autoTld | default .Values.global.domain -}}
   {{- $tld = required "ingress.autoTld or global.domain must be set when ingress.auto is enabled" $tld -}}
-  {{- printf "%s.%s" (include "webcomponent.fullname" .) $tld -}}
+  {{- $name := include "webcomponent.fullname" . -}}
+  {{- if .Values.ingress.autoUseReleaseName -}}
+    {{- $name = .Release.Name -}}
+  {{- end -}}
+  {{- $name = printf "%s%s" $name (.Values.ingress.autoNameSuffix | default "") | trunc 63 | trimSuffix "-" -}}
+  {{- printf "%s.%s" $name $tld -}}
 {{- end -}}
 {{- end -}}
 

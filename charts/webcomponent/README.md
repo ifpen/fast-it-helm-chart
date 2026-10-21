@@ -74,13 +74,24 @@ env:
 | `service.type` | `ClusterIP` | |
 | `service.port` | `80` | Port du Service **et** du conteneur. |
 | `ingress.enabled` | `false` | Crée un Ingress. |
-| `ingress.auto` | `true` | Ajoute automatiquement l'hôte `<fullname>.<domaine>` (chemin `/`, avec TLS). |
+| `ingress.auto` | `true` | Ajoute automatiquement l'hôte `<nom><suffixe>.<domaine>` (chemin `/`, avec TLS). |
+| `ingress.autoUseReleaseName` | `false` | `<nom>` vaut le nom de release seul au lieu de `<fullname>`. |
+| `ingress.autoNameSuffix` | `""` | Suffixe ajouté à `<nom>`, par exemple `-dev`. |
 | `ingress.autoTld` | `""` | Domaine de l'hôte automatique. Vide : `global.domain`. L'un des deux est **obligatoire** si `ingress.auto`. |
 | `global.domain` | `""` | Domaine commun (partagé avec les autres charts dans `webapp`). |
 | `ingress.className` | `""` | IngressClass. Vide : classe par défaut du cluster. |
 | `ingress.annotations` | `{}` | Par exemple `cert-manager.io/cluster-issuer`. |
 | `ingress.hosts` | `[]` | Hôtes supplémentaires (`host`, `paths[].path`, `paths[].pathType`). |
 | `ingress.tls` | `[]` | Blocs TLS supplémentaires (`hosts`, `secretName`). |
+
+Exemples d'hôte automatique pour la release `monapp` et le domaine `example.com` :
+
+| `autoUseReleaseName` | `autoNameSuffix` | Hôte |
+|---|---|---|
+| `false` | `""` | `monapp-webcomponent.example.com` |
+| `true` | `""` | `monapp.example.com` |
+| `false` | `-dev` | `monapp-webcomponent-dev.example.com` |
+| `true` | `-dev` | `monapp-dev.example.com` |
 
 L'hôte automatique est ajouté au bloc `tls` **sans `secretName`** : c'est le certificat par défaut de l'ingress controller (souvent un wildcard) qui est servi.
 
