@@ -1,0 +1,11 @@
+# Configuration chart-testing (ct), utilisée par le job "Version bump" du CI.
+# On s'en sert surtout pour vérifier que tout chart modifié dans une PR vers
+# main a une version supérieure à celle de main.
+remote: origin
+target-branch: main
+chart-dirs:
+  - charts
+check-version-increment: true
+validate-maintainers: false
+validate-chart-schema: false
+validate-yaml: false
