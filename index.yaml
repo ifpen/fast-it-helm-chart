@@ -3,6 +3,17 @@ entries:
   svc-mongodb:
   - apiVersion: v2
     appVersion: "1"
+    created: "2026-10-21T18:12:26.395976825Z"
+    description: Fast-IT Helm Chart for a MongoDB cluster alongside Mongo Express
+      for external access
+    digest: c3f87ba65dc5066a0eb51c9e27c91986a0aa2b23d8be95da89972332d7f23b5b
+    name: svc-mongodb
+    type: application
+    urls:
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-mongodb-0.1.2-rc.1/svc-mongodb-0.1.2-rc.1.tgz
+    version: 0.1.2-rc.1
+  - apiVersion: v2
+    appVersion: "1"
     created: "2026-10-21T18:07:17.550161145Z"
     description: Fast-IT Helm Chart for a MongoDB cluster alongside Mongo Express
       for external access
@@ -108,6 +119,16 @@ entries:
   webcomponent:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2026-10-21T18:12:29.628413159Z"
+    description: Fast-IT Helm Chart for WebComponents, used in WebApps and WebServices
+    digest: ac4b62d58b6e5e1597b5f37d313757187d7f6ca151b894bf25d0c298005e01a1
+    name: webcomponent
+    type: application
+    urls:
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webcomponent-0.1.2-rc.1/webcomponent-0.1.2-rc.1.tgz
+    version: 0.1.2-rc.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2026-10-21T18:07:15.00483759Z"
     description: Fast-IT Helm Chart for WebComponents, used in WebApps and WebServices
     digest: 9c5f6775f7b6acf6a978964726f9f7e9b76b87acc4771d08e03994f9ad673cf2
@@ -126,4 +147,4 @@ entries:
     urls:
     - https://github.com/ifpen/fast-it-helm-chart/releases/download/webcomponent-0.1.0-rc.1/webcomponent-0.1.0-rc.1.tgz
     version: 0.1.0-rc.1
-generated: "2026-10-21T18:07:20.74531963Z"
+generated: "2026-10-21T18:12:29.627968454Z"
