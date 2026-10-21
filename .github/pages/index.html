@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fast-IT Helm Charts</title>
+<meta name="description" content="Dépôt Helm des charts Fast-IT : webapp, webcomponent, svc-postgres, svc-mongodb.">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #eef1f5;
+    --border: #dde2ea;
+    --text: #18202b;
+    --muted: #5d6878;
+    --accent: #0f6e8c;
+    --accent-soft: #e3f1f5;
+    --rc: #9a5b00;
+    --rc-soft: #fbefd9;
+    --code-bg: #121a24;
+    --code-text: #d9e4ef;
+    --code-dim: #7f91a5;
+    --code-accent: #6fd3e8;
+    --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d131b;
+      --surface: #141c26;
+      --surface-2: #1b2531;
+      --border: #263241;
+      --text: #e4eaf1;
+      --muted: #93a1b2;
+      --accent: #5cc4dc;
+      --accent-soft: #15303a;
+      --rc: #f0b45a;
+      --rc-soft: #352812;
+      --code-bg: #0a0f15;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 var(--sans);
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  /* En-tête */
+  header { padding: 56px 0 28px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .eyebrow svg { width: 18px; height: 18px; }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 14px 0 10px; letter-spacing: -.02em; }
+  .lead { color: var(--muted); max-width: 640px; margin: 0; font-size: 16px; }
+  .header-links { margin-top: 18px; display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+
+  /* Bloc de commandes */
+  .terminal {
+    margin-top: 28px;
+    background: var(--code-bg);
+    border-radius: var(--radius);
+    color: var(--code-text);
+    font: 13.5px/1.7 var(--mono);
+    overflow: hidden;
+    border: 1px solid #1f2b38;
+  }
+  .terminal-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px; border-bottom: 1px solid #1f2b38; color: var(--code-dim); font-size: 12px;
+  }
+  .terminal pre { margin: 0; padding: 14px 16px; overflow-x: auto; white-space: pre; }
+  .terminal .p { color: var(--code-dim); user-select: none; }
+  .terminal .c { color: var(--code-dim); }
+  .terminal .a { color: var(--code-accent); }
+
+  button.copy {
+    font: 600 12px/1 var(--sans);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  .terminal button.copy { background: #1b2633; border-color: #2b3a4b; color: var(--code-text); }
+  button.copy:hover { border-color: var(--accent); }
+  button.copy.done { color: var(--accent); border-color: var(--accent); }
+
+  /* Barre d'outils */
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    margin: 36px 0 14px;
+  }
+  .toolbar h2 { font-size: 18px; margin: 0; }
+  .toolbar .count { color: var(--muted); font-weight: 400; font-size: 14px; margin-left: 6px; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  input[type=search] {
+    font: 14px var(--sans); color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; width: 220px; max-width: 100%;
+  }
+  input[type=search]:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  label.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); cursor: pointer; user-select: none; }
+  label.toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  /* Cartes */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 470px), 1fr)); gap: 16px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0;
+  }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .card h3 { margin: 0; font: 600 17px/1.3 var(--mono); word-break: break-word; }
+  .card .desc { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
+  .badge {
+    font: 600 12px/1 var(--mono); padding: 5px 8px; border-radius: 999px; white-space: nowrap;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .badge.rc { background: var(--rc-soft); color: var(--rc); }
+  .badge.none { background: var(--surface-2); color: var(--muted); }
+
+  .meta { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .meta b { color: var(--text); font-weight: 600; font-family: var(--mono); }
+
+  .deps { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); }
+  .chip { font: 12px/1 var(--mono); padding: 5px 8px; border-radius: 6px; background: var(--surface-2); color: var(--text); }
+
+  .install {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: var(--surface-2); border-radius: 8px; padding: 8px 8px 8px 12px;
+  }
+  .install code { flex: 1; min-width: 0; padding-top: 4px; overflow-wrap: anywhere; font: 13px/1.5 var(--mono); }
+  .install .nw { white-space: nowrap; }
+
+  details { border-top: 1px solid var(--border); padding-top: 10px; }
+  summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  summary:hover { color: var(--text); }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  td.v { font-family: var(--mono); white-space: nowrap; }
+  td.r { text-align: right; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  .table-scroll { overflow-x: auto; }
+
+  .state { padding: 40px; text-align: center; color: var(--muted); background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); }
+
+  /* Gitflow */
+  .flow { margin: 48px 0 0; }
+  .flow h2 { font-size: 18px; margin: 0 0 14px; }
+  .flow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .step { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; font-size: 14px; }
+  .step .b { font: 600 13px var(--mono); }
+  .step p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+  .step .out { margin-top: 8px; display: inline-block; }
+
+  footer { margin: 56px 0 40px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  @media (max-width: 560px) {
+    header { padding-top: 36px; }
+    .card-head { flex-direction: column; }
+    .badges { justify-content: flex-start; }
+    input[type=search] { width: 100%; }
+    .controls { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v6.5M12 14.5V21M3 12h6.5M14.5 12H21M5.6 5.6l4.6 4.6M13.8 13.8l4.6 4.6M18.4 5.6l-4.6 4.6M10.2 13.8l-4.6 4.6"/></svg>
+      Dépôt Helm
+    </span>
+    <h1>Fast-IT Helm Charts</h1>
+    <p class="lead">Charts pour déployer des applications web Fast-IT sur Kubernetes : composants front et back, bases PostgreSQL (CloudNativePG) et MongoDB, assemblés par le meta-chart <code>webapp</code>.</p>
+    <div class="header-links">
+      <a id="link-repo" href="#">Code source sur GitHub</a>
+      <a id="link-releases" href="#">Releases</a>
+      <a href="index.yaml">index.yaml</a>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span>Ajouter le dépôt</span>
+        <button class="copy" data-copy-target="setup-cmd">Copier</button>
+      </div>
+<pre id="setup-cmd"><span class="p">$ </span>helm repo add <span class="a" data-alias>fastit</span> <span data-repo-url></span>
+<span class="p">$ </span>helm repo update
+<span class="p">$ </span>helm search repo <span data-alias>fastit</span>/ --versions          <span class="c"># versions de production</span>
+<span class="p">$ </span>helm search repo <span data-alias>fastit</span>/ --versions --devel  <span class="c"># avec les release candidates</span></pre>
+    </div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <h2>Charts <span class="count" id="count"></span></h2>
+      <div class="controls">
+        <input type="search" id="filter" placeholder="Filtrer les charts…" aria-label="Filtrer les charts">
+        <label class="toggle"><input type="checkbox" id="show-rc"> Afficher les release candidates</label>
+      </div>
+    </div>
+    <div id="charts" class="grid" aria-live="polite">
+      <div class="state">Chargement de l'index…</div>
+    </div>
+
+    <section class="flow" aria-labelledby="flow-title">
+      <h2 id="flow-title">Cycle de publication</h2>
+      <div class="flow-grid">
+        <div class="step"><span class="b">feature/*</span><p>Développement, PR vers <code>develop</code>.</p><span class="badge none out">lint</span></div>
+        <div class="step"><span class="b">develop</span><p>Intégration des fonctionnalités.</p><span class="badge none out">lint</span></div>
+        <div class="step"><span class="b">release/* · hotfix/*</span><p>Version incrémentée dans <code>Chart.yaml</code>, une rc par changement.</p><span class="badge rc out">X.Y.Z-rc.N</span></div>
+        <div class="step"><span class="b">main</span><p>Merge de la release : version de production.</p><span class="badge out">X.Y.Z</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Index généré <span id="generated">—</span></span>
+    <span>Versions SemVer · les rc ne sont visibles qu'avec <code>--devel</code></span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // URL du dépôt Helm = dossier de cette page.
+  var repoUrl = (location.origin + location.pathname).replace(/\/index\.html$/, "").replace(/\/$/, "");
+  var owner = location.hostname.split(".")[0];
+  var repoName = location.pathname.split("/").filter(Boolean)[0] || "";
+  var alias = "fastit";
+  var ghUrl = "https://github.com/" + owner + "/" + repoName;
+
+  document.querySelectorAll("[data-repo-url]").forEach(function (el) { el.textContent = repoUrl; });
+  document.querySelectorAll("[data-alias]").forEach(function (el) { el.textContent = alias; });
+  if (repoName) {
+    document.getElementById("link-repo").href = ghUrl;
+    document.getElementById("link-releases").href = ghUrl + "/releases";
+  }
+
+  // --- SemVer -------------------------------------------------------------
+  function parse(v) {
+    var m = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+.*)?$/.exec(String(v));
+    if (!m) return null;
+    return { core: [+m[1], +m[2], +m[3]], pre: m[4] ? m[4].split(".") : [] };
+  }
+  function cmpId(a, b) {
+    var na = /^\d+$/.test(a), nb = /^\d+$/.test(b);
+    if (na && nb) return (+a) - (+b);
+    if (na) return -1;
+    if (nb) return 1;
+    return a < b ? -1 : a > b ? 1 : 0;
+  }
+  function compare(a, b) {
+    var pa = parse(a), pb = parse(b);
+    if (!pa || !pb) return String(a).localeCompare(String(b));
+    for (var i = 0; i < 3; i++) if (pa.core[i] !== pb.core[i]) return pa.core[i] - pb.core[i];
+    if (!pa.pre.length && !pb.pre.length) return 0;
+    if (!pa.pre.length) return 1;
+    if (!pb.pre.length) return -1;
+    for (var j = 0; j < Math.max(pa.pre.length, pb.pre.length); j++) {
+      if (pa.pre[j] === undefined) return -1;
+      if (pb.pre[j] === undefined) return 1;
+      var c = cmpId(pa.pre[j], pb.pre[j]);
+      if (c) return c;
+    }
+    return 0;
+  }
+  function isPre(v) { var p = parse(v); return !!(p && p.pre.length); }
+
+  // --- Utilitaires --------------------------------------------------------
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  var dateFmt = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  var dateTimeFmt = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" });
+  function fmtDate(s, withTime) {
+    var d = new Date(s);
+    if (isNaN(d)) return "—";
+    return (withTime ? dateTimeFmt : dateFmt).format(d);
+  }
+  function copyText(text, btn) {
+    var done = function () {
+      var label = btn.textContent;
+      btn.textContent = "Copié";
+      btn.classList.add("done");
+      setTimeout(function () { btn.textContent = label; btn.classList.remove("done"); }, 1400);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, function () {});
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("button.copy");
+    if (!btn) return;
+    var text = btn.getAttribute("data-copy");
+    if (!text) {
+      var target = document.getElementById(btn.getAttribute("data-copy-target"));
+      text = target.innerText.replace(/^\$ /gm, "").replace(/\s+#.*$/gm, "");
+    }
+    copyText(text.trim(), btn);
+  });
+
+  // --- Rendu --------------------------------------------------------------
+  var charts = [];
+  var container = document.getElementById("charts");
+  var filterInput = document.getElementById("filter");
+  var showRc = document.getElementById("show-rc");
+
+  function prepare(entries) {
+    return Object.keys(entries).sort().map(function (name) {
+      var versions = (entries[name] || []).slice().sort(function (a, b) { return compare(b.version, a.version); });
+      var stable = versions.filter(function (v) { return !isPre(v.version); });
+      var latestStable = stable[0] || null;
+      var latestAny = versions[0] || null;
+      var latestRc = latestAny && isPre(latestAny.version) &&
+        (!latestStable || compare(latestAny.version, latestStable.version) > 0) ? latestAny : null;
+      return { name: name, versions: versions, stable: latestStable, rc: latestRc, ref: latestStable || latestAny };
+    });
+  }
+
+  function cardHtml(c, withRc) {
+    var ref = c.ref || {};
+    var installVersion = c.stable ? c.stable.version : (c.rc ? c.rc.version : "");
+    if (withRc && c.rc) installVersion = c.rc.version;
+    var cmd = "helm install " + c.name + " " + alias + "/" + c.name + (installVersion ? " --version " + installVersion : "");
+
+    var badges = "";
+    if (c.stable) badges += '<span class="badge" title="Dernière version de production">v' + esc(c.stable.version) + "</span>";
+    else badges += '<span class="badge none">pas de version de prod</span>';
+    if (c.rc && withRc) badges += '<span class="badge rc" title="Release candidate plus récente">' + esc(c.rc.version) + "</span>";
+
+    var meta = "";
+    if (ref.appVersion) meta += "<span>appVersion <b>" + esc(ref.appVersion) + "</b></span>";
+    if (ref.created) meta += "<span>Publié le <b>" + esc(fmtDate(ref.created)) + "</b></span>";
+    var nStable = c.versions.filter(function (v) { return !isPre(v.version); }).length;
+    meta += "<span><b>" + nStable + "</b> version" + (nStable > 1 ? "s" : "") + " de prod</span>";
+
+    var deps = "";
+    if (ref.dependencies && ref.dependencies.length) {
+      var seen = {};
+      deps = '<div class="deps"><span>Inclut</span>' + ref.dependencies.map(function (d) {
+        var label = d.alias ? d.alias + " (" + d.name + ")" : d.name;
+        if (seen[label]) return "";
+        seen[label] = true;
+        return '<span class="chip">' + esc(label) + "</span>";
+      }).join("") + "</div>";
+    }
+
+    var rows = c.versions.filter(function (v) { return withRc || !isPre(v.version); }).map(function (v) {
+      var url = v.urls && v.urls[0];
+      return "<tr><td class=\"v\">" + esc(v.version) + (isPre(v.version) ? ' <span class="badge rc">rc</span>' : "") +
+        "</td><td>" + esc(v.appVersion || "—") + "</td><td>" + esc(fmtDate(v.created)) +
+        '</td><td class="r">' + (url ? '<a href="' + esc(url) + '">.tgz</a>' : "") + "</td></tr>";
+    }).join("");
+
+    return '<article class="card">' +
+      '<div class="card-head"><div><h3>' + esc(c.name) + '</h3><p class="desc">' + esc(ref.description || "") + "</p></div>" +
+      '<div class="badges">' + badges + "</div></div>" +
+      '<div class="meta">' + meta + "</div>" + deps +
+      '<div class="install"><code>' + esc(cmd.replace(/ --version .*$/, "")) + (installVersion ? ' <span class="nw">--version ' + esc(installVersion) + "</span>" : "") + '</code><button class="copy" data-copy="' + esc(cmd) + '">Copier</button></div>' +
+      (rows ? "<details><summary>Toutes les versions</summary><div class=\"table-scroll\"><table><thead><tr><th>Version</th><th>appVersion</th><th>Date</th><th></th></tr></thead><tbody>" + rows + "</tbody></table></div></details>" : "") +
+      "</article>";
+  }
+
+  function render() {
+    var q = filterInput.value.trim().toLowerCase();
+    var withRc = showRc.checked;
+    var list = charts.filter(function (c) {
+      if (!withRc && !c.stable) return false;
+      if (!q) return true;
+      var ref = c.ref || {};
+      return c.name.toLowerCase().indexOf(q) !== -1 || String(ref.description || "").toLowerCase().indexOf(q) !== -1;
+    });
+    document.getElementById("count").textContent = list.length ? "(" + list.length + ")" : "";
+    container.innerHTML = list.length
+      ? list.map(function (c) { return cardHtml(c, withRc); }).join("")
+      : '<div class="state">' + (charts.length ? "Aucun chart ne correspond." : "Aucun chart publié pour le moment.") + "</div>";
+  }
+
+  filterInput.addEventListener("input", render);
+  showRc.addEventListener("change", render);
+
+  fetch("index.yaml", { cache: "no-cache" })
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+    .then(function (text) {
+      if (!window.jsyaml) throw new Error("bibliothèque YAML indisponible");
+      var idx = window.jsyaml.load(text) || {};
+      charts = prepare(idx.entries || {});
+      if (idx.generated) document.getElementById("generated").textContent = "le " + fmtDate(idx.generated, true);
+      render();
+    })
+    .catch(function (err) {
+      container.innerHTML = '<div class="state">Impossible de charger <a href="index.yaml">index.yaml</a> (' + esc(err.message) + ").</div>";
+    });
+})();
+</script>
+</body>
+</html>
