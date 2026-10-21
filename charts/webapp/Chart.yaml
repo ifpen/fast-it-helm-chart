@@ -2,7 +2,7 @@ apiVersion: v2
 name: webapp
 description: Fast-IT Meta Helm-Chart for WebApps
 type: application
-version: 0.1.2
+version: 0.1.3
 
 dependencies:
   - name: webcomponent
