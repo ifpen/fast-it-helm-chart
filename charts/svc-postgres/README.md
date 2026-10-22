@@ -84,7 +84,7 @@ database:
 
 ### Exposition de pgAdmin
 
-Identique à [`webcomponent`](../webcomponent/README.md#exposition) : `ingress.enabled` (défaut `false`), `ingress.auto` pour l'hôte `<fullname>.<global.domain>`, `ingress.autoTld`, `ingress.className`, `ingress.annotations`, `ingress.hosts`, `ingress.tls`.
+Identique à [`webcomponent`](../webcomponent/README.md#exposition) : `ingress.enabled` (défaut `false`), `ingress.auto` pour l'hôte `<fullname><suffixe>.<global.domain>` (suffixe `-<global.environment>`, aucun pour `prod`, ou `ingress.autoNameSuffix`), `ingress.autoTld`, `ingress.className`, `ingress.annotations`, `ingress.hosts`, `ingress.tls`.
 
 Les autres clés de pod (`serviceAccount`, `podAnnotations`, `podLabels`, `podSecurityContext`, `securityContext`, `volumes`, `volumeMounts`, `nodeSelector`, `tolerations`, `affinity`, `autoscaling`) fonctionnent comme dans `webcomponent`.
 

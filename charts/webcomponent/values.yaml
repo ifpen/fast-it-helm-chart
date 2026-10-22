@@ -1,5 +1,10 @@
 global:
   domain: ""
+  # Environment (dev, rec, prod...). Adds "-<environment>" to the generated
+  # ingress hosts, except for the environments listed below.
+  environment: ""
+  environmentsWithoutSuffix:
+    - prod
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
@@ -65,7 +70,7 @@ ingress:
   autoTld: ""
   # <name> is the release name alone instead of <release>-<chart or alias>
   autoUseReleaseName: false
-  # Appended to <name>, e.g. "-dev"
+  # Appended to <name>, e.g. "-dev". Overrides the suffix derived from global.environment
   autoNameSuffix: ""
   className: ""
   annotations: {}

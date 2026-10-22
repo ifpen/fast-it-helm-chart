@@ -4,6 +4,11 @@
 global:
   domain: "example.com"
   ingressClassName: "nginx"
+  # Environment (dev, rec, prod...). Adds "-<environment>" to the generated
+  # ingress hosts, except for the environments listed below.
+  environment: ""
+  environmentsWithoutSuffix:
+    - prod
 
 #
 # Dependency Webcomponents
