@@ -3,6 +3,17 @@ entries:
   svc-mongodb:
   - apiVersion: v2
     appVersion: "1"
+    created: "2026-10-22T06:01:22.009323047Z"
+    description: Fast-IT Helm Chart for a MongoDB cluster alongside Mongo Express
+      for external access
+    digest: 782c6837bf80f217ee5498db29634643f98feb4a3c27c1f4f6dd676a01159a37
+    name: svc-mongodb
+    type: application
+    urls:
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-mongodb-0.1.4-rc.1/svc-mongodb-0.1.4-rc.1.tgz
+    version: 0.1.4-rc.1
+  - apiVersion: v2
+    appVersion: "1"
     created: "2026-10-21T19:06:28.10961704Z"
     description: Fast-IT Helm Chart for a MongoDB cluster alongside Mongo Express
       for external access
@@ -70,6 +81,17 @@ entries:
   svc-postgres:
   - apiVersion: v2
     appVersion: "9"
+    created: "2026-10-22T06:01:24.752799924Z"
+    description: Fast-IT Helm Chart for a CNPG cluster alongside PG Admin for external
+      access
+    digest: 4cd9670bdc6a929a0cccd5c8000e47cb1295dbfda324ca0a8f58b5585f2d5c03
+    name: svc-postgres
+    type: application
+    urls:
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-postgres-0.1.4-rc.1/svc-postgres-0.1.4-rc.1.tgz
+    version: 0.1.4-rc.1
+  - apiVersion: v2
+    appVersion: "9"
     created: "2026-10-21T19:06:31.38991866Z"
     description: Fast-IT Helm Chart for a CNPG cluster alongside PG Admin for external
       access
@@ -113,6 +135,35 @@ entries:
     - https://github.com/ifpen/fast-it-helm-chart/releases/download/svc-postgres-0.1.2-rc.1/svc-postgres-0.1.2-rc.1.tgz
     version: 0.1.2-rc.1
   webapp:
+  - apiVersion: v2
+    created: "2026-10-22T06:01:27.720609085Z"
+    dependencies:
+    - alias: back
+      name: webcomponent
+      repository: file://../webcomponent
+      version: '>= 0.1.0'
+    - alias: front
+      condition: front.enabled
+      name: webcomponent
+      repository: file://../webcomponent
+      version: '>= 0.1.0'
+    - alias: postgres
+      condition: postgres.enabled
+      name: svc-postgres
+      repository: file://../svc-postgres
+      version: '>= 0.1.0'
+    - alias: mongodb
+      condition: mongodb.enabled
+      name: svc-mongodb
+      repository: file://../svc-mongodb
+      version: '>= 0.1.0'
+    description: Fast-IT Meta Helm-Chart for WebApps
+    digest: 9722ef6a351a0bb1dc6f0a7ae250750e9572471402ba9f684f23d4c2fe581c4f
+    name: webapp
+    type: application
+    urls:
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webapp-0.1.5-rc.1/webapp-0.1.5-rc.1.tgz
+    version: 0.1.5-rc.1
   - apiVersion: v2
     created: "2026-10-21T19:06:34.632301681Z"
     dependencies:
@@ -290,6 +341,16 @@ entries:
   webcomponent:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2026-10-22T06:01:30.201367988Z"
+    description: Fast-IT Helm Chart for WebComponents, used in WebApps and WebServices
+    digest: 4b173db0469f765326496cfbd0cfec5ccb6827fdf0f746e1ae855671917df8b2
+    name: webcomponent
+    type: application
+    urls:
+    - https://github.com/ifpen/fast-it-helm-chart/releases/download/webcomponent-0.1.4-rc.1/webcomponent-0.1.4-rc.1.tgz
+    version: 0.1.4-rc.1
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2026-10-21T19:06:38.547548272Z"
     description: Fast-IT Helm Chart for WebComponents, used in WebApps and WebServices
     digest: 44983e4722680457c81e69240dfa9572def590815cabffd3718bd39a61f7b36f
@@ -348,4 +409,4 @@ entries:
     urls:
     - https://github.com/ifpen/fast-it-helm-chart/releases/download/webcomponent-0.1.0-rc.1/webcomponent-0.1.0-rc.1.tgz
     version: 0.1.0-rc.1
-generated: "2026-10-21T19:06:38.547046403Z"
+generated: "2026-10-22T06:01:30.200577607Z"
