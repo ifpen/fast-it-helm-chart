@@ -73,18 +73,41 @@ Create the name of the service account to use
 
 ## INGRESS CONFIG
 {{/*
+Suffix appended to automatically generated ingress hosts.
+
+- ingress.autoNameSuffix, when set, is used as is;
+- otherwise "-<global.environment>", except for the environments listed in
+  global.environmentsWithoutSuffix (default: prod);
+- empty when global.environment is not set.
+
+Examples: "-dev", "-rec", "".
+*/}}
+{{- define "webcomponent.hostSuffix" -}}
+{{- if .Values.ingress.autoNameSuffix -}}
+  {{- .Values.ingress.autoNameSuffix -}}
+{{- else -}}
+  {{- $env := (.Values.global).environment | default "" | toString -}}
+  {{- $noSuffix := (.Values.global).environmentsWithoutSuffix | default (list "prod") -}}
+  {{- if and $env (not (has $env $noSuffix)) -}}
+    {{- printf "-%s" $env -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
 Return the automatically generated ingress host.
 
 Returns an empty string when auto ingress is not active.
 
 The host name is the component full name (<release>-<chart or alias>),
 or the release name alone when ingress.autoUseReleaseName is true,
-followed by the optional ingress.autoNameSuffix.
+followed by the environment suffix (see webcomponent.hostSuffix).
 
 Examples:
-  toto-back.example.com      (default)
+  toto-back.example.com      (default, or global.environment: prod)
   toto.example.com           (autoUseReleaseName: true)
-  toto-back-dev.example.com  (autoNameSuffix: "-dev")
+  toto-back-dev.example.com  (global.environment: dev)
 */}}
 {{- define "webcomponent.autoIngressHost" -}}
 {{- if and .Values.ingress.enabled .Values.ingress.auto -}}
@@ -94,7 +117,7 @@ Examples:
   {{- if .Values.ingress.autoUseReleaseName -}}
     {{- $name = .Release.Name -}}
   {{- end -}}
-  {{- $name = printf "%s%s" $name (.Values.ingress.autoNameSuffix | default "") | trunc 63 | trimSuffix "-" -}}
+  {{- $name = printf "%s%s" $name (include "webcomponent.hostSuffix" .) | trunc 63 | trimSuffix "-" -}}
   {{- printf "%s.%s" $name $tld -}}
 {{- end -}}
 {{- end -}}

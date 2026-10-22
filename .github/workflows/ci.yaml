@@ -75,30 +75,57 @@ jobs:
           check() {
             local out="$1"; shift
             for expected in "$@"; do
-              grep -qF -- "$expected" "$out" || { echo "::error::attendu : $expected"; grep -E 'host:|API_URL' "$out"; exit 1; }
+              grep -qF -- "$expected" "$out" || { echo "::error::$out : attendu $expected"; grep -E 'host:|_URL' "$out"; exit 1; }
             done
           }
+          absent() {
+            local out="$1"; shift
+            for unexpected in "$@"; do
+              if grep -qF -- "$unexpected" "$out"; then echo "::error::$out : inattendu $unexpected"; grep -E 'host:|_URL' "$out"; exit 1; fi
+            done
+          }
+          render() {
+            local out="$1"; shift
+            helm template testapp charts/webapp --set global.domain=example.org \
+              --set front.enabled=true --set postgres.enabled=true --set mongodb.enabled=true "$@" > "$out"
+          }
 
-          # Front sur <release>.<domaine>, back sur <release>-back.<domaine>
-          helm template testapp charts/webapp \
-            --set global.domain=example.org --set front.enabled=true > default.yaml
-          check default.yaml \
-            'host: "testapp.example.org"' \
-            'host: "testapp-back.example.org"' \
-            'API_URL: "testapp-back.example.org"'
-
-          # Avec un suffixe d'environnement
-          helm template testapp charts/webapp \
-            --set global.domain=example.org --set front.enabled=true \
-            --set front.ingress.autoNameSuffix=-dev --set back.ingress.autoNameSuffix=-dev > suffix.yaml
-          check suffix.yaml \
+          # dev : suffixe -dev sur tous les composants
+          render dev.yaml --set global.environment=dev
+          check dev.yaml \
             'host: "testapp-dev.example.org"' \
             'host: "testapp-back-dev.example.org"' \
-            'API_URL: "testapp-back-dev.example.org"'
+            'host: "testapp-postgres-dev.example.org"' \
+            'host: "testapp-mongodb-dev.example.org"' \
+            'API_URL: "testapp-back-dev.example.org"' \
+            'POSTGRES_ADMIN_URL: testapp-postgres-dev.example.org' \
+            'MONGO_ADMIN_URL: testapp-mongodb-dev.example.org'
 
-          # Back seul : inchangé
-          helm template testapp charts/webapp --set global.domain=example.org > back-only.yaml
-          check back-only.yaml 'host: "testapp-back.example.org"'
+          # rec : suffixe -rec
+          render rec.yaml --set global.environment=rec
+          check rec.yaml 'host: "testapp-rec.example.org"' 'host: "testapp-back-rec.example.org"'
+
+          # prod : pas de suffixe
+          render prod.yaml --set global.environment=prod
+          check prod.yaml \
+            'host: "testapp.example.org"' \
+            'host: "testapp-back.example.org"' \
+            'host: "testapp-postgres.example.org"' \
+            'host: "testapp-mongodb.example.org"'
+          absent prod.yaml '-prod.example.org'
+
+          # Sans environnement : pas de suffixe
+          render none.yaml
+          check none.yaml 'host: "testapp.example.org"' 'host: "testapp-back.example.org"'
+
+          # autoNameSuffix explicite : prioritaire sur l'environnement
+          render override.yaml --set global.environment=dev --set back.ingress.autoNameSuffix=-test
+          check override.yaml 'host: "testapp-back-test.example.org"' 'host: "testapp-dev.example.org"'
+          absent override.yaml 'testapp-back-dev'
+
+          # Back seul
+          helm template testapp charts/webapp --set global.domain=example.org --set global.environment=dev > back-only.yaml
+          check back-only.yaml 'host: "testapp-back-dev.example.org"'
           echo "Hôtes conformes"
 
   version-bump:
