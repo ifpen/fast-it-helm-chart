@@ -61,6 +61,8 @@ ingress:
   enabled: true
   auto: true
   autoTld: ""
+  # Appended to the host name, e.g. "-dev". Overrides the suffix derived from global.environment
+  autoNameSuffix: ""
   className: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
@@ -131,6 +133,11 @@ affinity: {}
 global:
   domain: "example.com"
   clusterDomain: "cluster.local"
+  # Environment (dev, rec, prod...). Adds "-<environment>" to the generated
+  # ingress hosts, except for the environments listed below.
+  environment: ""
+  environmentsWithoutSuffix:
+    - prod
 
 mongoExpress:
   username: mongo-express-user

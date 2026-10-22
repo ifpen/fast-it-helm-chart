@@ -95,6 +95,29 @@ Create the name of the service account to use
 
 ## INGRESS CONFIG
 {{/*
+Suffix appended to automatically generated ingress hosts.
+
+- ingress.autoNameSuffix, when set, is used as is;
+- otherwise "-<global.environment>", except for the environments listed in
+  global.environmentsWithoutSuffix (default: prod);
+- empty when global.environment is not set.
+
+Examples: "-dev", "-rec", "".
+*/}}
+{{- define "svc-postgres.hostSuffix" -}}
+{{- if .Values.ingress.autoNameSuffix -}}
+  {{- .Values.ingress.autoNameSuffix -}}
+{{- else -}}
+  {{- $env := (.Values.global).environment | default "" | toString -}}
+  {{- $noSuffix := (.Values.global).environmentsWithoutSuffix | default (list "prod") -}}
+  {{- if and $env (not (has $env $noSuffix)) -}}
+    {{- printf "-%s" $env -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
 Return the automatically generated ingress host.
 
 Returns an empty string when auto ingress is not active.
@@ -106,7 +129,8 @@ Example:
 {{- if and .Values.ingress.enabled .Values.ingress.auto -}}
   {{- $tld := .Values.ingress.autoTld | default .Values.global.domain -}}
   {{- $tld = required "ingress.autoTld or global.domain must be set when ingress.auto is enabled" $tld -}}
-  {{- printf "%s.%s" (include "svc-postgres.fullname" .) $tld -}}
+  {{- $name := printf "%s%s" (include "svc-postgres.fullname" .) (include "svc-postgres.hostSuffix" .) | trunc 63 | trimSuffix "-" -}}
+  {{- printf "%s.%s" $name $tld -}}
 {{- end -}}
 {{- end -}}
 

@@ -61,18 +61,32 @@ Sous `webapp`, chaque sous-chart prend le nom de son alias. Pour une release `mo
 | postgres | Cluster CNPG `monapp-postgres-cluster` (Service `monapp-postgres-cluster-rw`), pgAdmin `monapp-postgres` | `monapp-postgres.<global.domain>` |
 | mongodb | MongoDBCommunity `monapp-mongo` (Service `monapp-mongo-svc`), Mongo Express `monapp-mongodb` | `monapp-mongodb.<global.domain>` |
 
+Les hôtes ci-dessus sont ceux de la prod (ou sans environnement). Avec `global.environment`, ils reçoivent un suffixe : voir [URL par environnement](#url-par-environnement).
+
 Le front est servi directement sur le nom de l'application (`front.ingress.autoUseReleaseName: true`), tandis que le back garde le suffixe `-back`.
 
-Pour distinguer les environnements, ajoutez un suffixe aux hôtes. Avec la configuration ci-dessous, le front est servi sur `monapp-dev.<domaine>` et le back sur `monapp-back-dev.<domaine>` :
+### URL par environnement
+
+`global.environment` ajoute `-<environnement>` à l'hôte de **tous** les composants, sauf pour les environnements listés dans `global.environmentsWithoutSuffix` (`prod` par défaut). Pour l'application `monapp` sur le domaine `ifpen.fr` :
+
+| `global.environment` | front | back | pgAdmin | Mongo Express |
+|---|---|---|---|---|
+| `dev` | `monapp-dev.ifpen.fr` | `monapp-back-dev.ifpen.fr` | `monapp-postgres-dev.ifpen.fr` | `monapp-mongodb-dev.ifpen.fr` |
+| `rec` | `monapp-rec.ifpen.fr` | `monapp-back-rec.ifpen.fr` | `monapp-postgres-rec.ifpen.fr` | `monapp-mongodb-rec.ifpen.fr` |
+| `prod` ou vide | `monapp.ifpen.fr` | `monapp-back.ifpen.fr` | `monapp-postgres.ifpen.fr` | `monapp-mongodb.ifpen.fr` |
+
+Les variables `API_URL`, `POSTGRES_ADMIN_URL` et `MONGO_ADMIN_URL` suivent automatiquement.
+
+Avec Argo CD, l'environnement se passe depuis l'ApplicationSet. Le même bloc convient à dev, rec et prod :
 
 ```yaml
-front:
-  ingress:
-    autoNameSuffix: -dev
-back:
-  ingress:
-    autoNameSuffix: -dev
+helm:
+  parameters:
+    - name: global.environment
+      value: '{{ .values.environment }}'
 ```
+
+`<composant>.ingress.autoNameSuffix`, s'il est défini, remplace ce suffixe pour le composant concerné.
 
 Le détail des ressources de chaque composant est dans le README du sous-chart correspondant.
 
@@ -147,12 +161,14 @@ Toutes les clés des sous-charts sont disponibles sous leur alias (`back.*`, `fr
 | Clé | Défaut | Description |
 |---|---|---|
 | `global.domain` | `example.com` | Domaine des Ingress automatiques de tous les composants. **À surcharger.** |
+| `global.environment` | `""` | Environnement : ajoute `-<environnement>` aux hôtes (voir plus haut). |
+| `global.environmentsWithoutSuffix` | `[prod]` | Environnements dont les hôtes n'ont pas de suffixe. |
 | `back.service.port` | `5001` | Port du back (Service et conteneur). |
 | `back.ingress.enabled` / `auto` | `true` / `true` | Back exposé sur `monapp-back.<domaine>`. |
 | `front.enabled` | `false` | |
 | `front.ingress.enabled` / `auto` | `true` / `true` | |
 | `front.ingress.autoUseReleaseName` | `true` | Front exposé sur `monapp.<domaine>`. Mettre `false` pour `monapp-front.<domaine>`. |
-| `back.ingress.autoNameSuffix` / `front.ingress.autoNameSuffix` | `""` | Suffixe des hôtes, par exemple `-dev`. |
+| `<composant>.ingress.autoNameSuffix` | `""` | Suffixe explicite de l'hôte d'un composant, prioritaire sur `global.environment`. |
 | `postgres.enabled` | `false` | |
 | `postgres.cluster.createSecret` | `false` | Le Secret des identifiants est créé par `webapp`. |
 | `postgres.database.secret` | `postgres-initdb` | Nom de ce Secret. |

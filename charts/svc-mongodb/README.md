@@ -90,8 +90,10 @@ L'endpoint Prometheus de MongoDB est activé sur la ressource MongoDBCommunity e
 | Clé | Défaut | Description |
 |---|---|---|
 | `ingress.enabled` | `true` | |
-| `ingress.auto` | `true` | Hôte `<fullname>.<domaine>`. |
+| `ingress.auto` | `true` | Hôte `<fullname><suffixe>.<domaine>`. |
 | `global.domain` | `example.com` | **À surcharger** (ou utiliser `ingress.autoTld`). |
+| `global.environment` | `""` | Suffixe `-<environnement>` de l'hôte (aucun pour `prod`, voir `global.environmentsWithoutSuffix`). |
+| `ingress.autoNameSuffix` | `""` | Suffixe explicite, prioritaire sur `global.environment`. |
 
 Les autres clés (`ingress.className`, `annotations`, `hosts`, `tls`) et les clés de pod (`serviceAccount`, `podAnnotations`, `podLabels`, `podSecurityContext`, `securityContext`, `volumes`, `volumeMounts`, `nodeSelector`, `tolerations`, `affinity`, `autoscaling`) fonctionnent comme dans [`webcomponent`](../webcomponent/README.md).
 
